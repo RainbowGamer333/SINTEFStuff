@@ -13,8 +13,8 @@ class CypherTesting:
     """
 
     # todo: configure authentication
-    def __init__(self, sch, h, p, que=None):
-        self.graph = Graph(scheme=sch, host=h, port=p)
+    def __init__(self, sch, h, p, user=None, password=None, que=None):
+        self.graph = Graph(scheme=sch, host=h, port=p, auth=(user, password))
         self.data = self.execute_query(que) if que is not None else None
         self.filename = None
         self.__nodeDisplay = {'Person': {'display': 'name', 'colour': 'green'},
