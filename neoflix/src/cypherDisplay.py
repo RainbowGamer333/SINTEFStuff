@@ -12,13 +12,19 @@ class CypherTesting:
     A class to handle the execution of cypher queries and to display the results.
     """
 
-    # todo: configure authentication
     def __init__(self, sch, h, p, user=None, password=None, que=None):
+        """
+        Initialise the class.
+        """
         self.graph = Graph(scheme=sch, host=h, port=p, auth=(user, password))
         self.data = self.execute_query(que) if que is not None else None
-        self.filename = None
         self.__nodeDisplay = {'Person': {'display': 'name', 'colour': 'green'},
-                              'Movie': {'display': 'title', 'colour': 'red'}}
+                              'Movie': {'display': 'title', 'colour': 'red'},
+                              'Genre': {'display': 'name', 'colour': 'orange'},
+                              'User': {'display': 'name', 'colour': 'blue'},
+                              'Actor': {'display': 'name', 'colour': 'lightgreen'},
+                              'Director': {'display': 'name', 'colour': 'blue'}}
+        self.filename = None
 
     def set_filename(self, fname):
         """
@@ -56,14 +62,16 @@ class CypherTesting:
             # In case of unusual errors regarding the adding of edges, uncomment the following line.
             # This will create the nodes before the relationship, which may help.
 
-            # values = sorted(record.values(), key=lambda x: x.__class__.__name__, reverse=True)
+            values = record.values()
+            # values = sorted(values(), key=lambda x: x.__class__.__name__, reverse=True)
 
-            for value in record.values():
+            for value in values:
 
                 # if node
                 if isinstance(value, py2neo.data.Node):
                     attr = self.__nodeDisplay[list(value.labels)[0]]
                     g.add_node(value[attr['display']], color=attr['colour'])
+                    print(value.labels)
 
                 # if relationship
                 elif isinstance(value, py2neo.data.Relationship):
@@ -75,13 +83,13 @@ class CypherTesting:
                     endStr = endNode[self.__nodeDisplay[list(endNode.labels)[0]]['display']]
 
                     if not g.has_edge(startStr, endStr):
-                        g.add_edge(startStr, endStr, label=rel, arrows="to")
+                        g.add_edge(startStr, endStr, label=rel, arrows="to", color="grey")
 
                     else:
                         # if relationship doesn't already exist, add it
                         edge_data = g.get_edge_data(startStr, endStr)
                         if rel not in [edge_data[key]['label'] for key in edge_data.keys()]:
-                            g.add_edge(startStr, endStr, label=rel, arrows="to")
+                            g.add_edge(startStr, endStr, label=rel, arrows="to", color="grey")
         return g
 
     def get_html_graph(self, fname=None):
