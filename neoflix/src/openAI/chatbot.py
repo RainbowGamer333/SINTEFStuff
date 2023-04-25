@@ -4,6 +4,8 @@ from termcolor import colored
 from datetime import datetime
 
 
+# todo: implement the API into the rest of the code
+
 def fixed_invoke(messages):
     return openai.ChatCompletion.create(
         engine="gpt-35",

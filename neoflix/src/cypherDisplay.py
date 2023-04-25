@@ -12,12 +12,12 @@ class CypherDisplay:
     A class to handle the execution of cypher queries and to display the results.
     """
 
-    def __init__(self, sch, h, p, user=None, password=None, que=None):
+    def __init__(self, sch, h, p, user=None, password=None, query=None):
         """
         Initialise the class.
         """
         self.graph = Graph(scheme=sch, host=h, port=p, auth=(user, password))
-        self.data = self.execute_query(que) if que is not None else None
+        self.data = self.execute_query(query) if query is not None else None
         self.__nodeDisplay = {'Person': {'display': 'name', 'colour': 'green'},
                               'Movie': {'display': 'title', 'colour': 'red'},
                               'Genre': {'display': 'name', 'colour': 'orange'},

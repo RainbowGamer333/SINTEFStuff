@@ -4,6 +4,8 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/neoflix" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/app-python/instance" />
+      <excludeFolder url="file://$MODULE_DIR$/app-python/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.11 (SINTEFStuff)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
