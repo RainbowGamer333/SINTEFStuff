@@ -7,7 +7,7 @@ from py2neo import Graph
 from pyvis.network import Network
 
 
-class CypherTesting:
+class CypherDisplay:
     """
     A class to handle the execution of cypher queries and to display the results.
     """
