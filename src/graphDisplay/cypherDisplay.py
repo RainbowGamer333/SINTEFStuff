@@ -104,7 +104,7 @@ class CypherDisplay:
         :return: None
         """
         assert self.data is not None, 'No data has been set. Execute a query first.'
-        assert fname is not None or self.filename is not None, 'No filename has been set. Set a filename first.'
+        assert fname is not None or self.filename is not None, 'No filename has been set'
 
         if fname is not None:
             self.set_filename(fname)
@@ -113,7 +113,11 @@ class CypherDisplay:
         nt = Network(notebook=True, directed=True, height="1400px")
         nt.from_nx(g)
         nt.set_edge_smooth('dynamic')
-        nt.show('../graphs/' + self.filename)
+
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        graph_path = os.path.join(os.path.dirname(current_dir), 'graphs', self.filename)
+
+        nt.show(graph_path)
 
 
     def open_graph(self, name=None):
@@ -121,15 +125,15 @@ class CypherDisplay:
         Open a file and return its content.
         :return: the content of the file
         """
-        assert name is not None or self.filename is not None, 'No filename has been set. Set a filename first.'
-
+        assert name is not None or self.filename is not None, 'No filename has been set'
         if name is not None:
             self.set_filename(name)
 
-        path = '../graphs/' + self.filename
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        graph_path = os.path.join(os.path.dirname(current_dir), 'graphs', self.filename)
+        assert os.path.exists(graph_path), self.filename + ' does not exist'
 
-        assert os.path.exists(path), self.filename + ' does not exist. Use get_html_graph(str) to create the file.'
-        webbrowser.open("file://" + path)
+        webbrowser.open_new_tab(graph_path)
 
 
     def add_node_displays(self, label, display, colour):
@@ -141,3 +145,11 @@ class CypherDisplay:
         :return: None
         """
         self.__nodeDisplay[label] = {'display': display, 'colour': colour}
+
+
+if __name__ == '__main__':
+    cypher = CypherDisplay('https', 'demo.neo4jlabs.com', 7473, 'recommendations', 'recommendations')
+    cypher.execute_query("MATCH (p:Person) -[r]-> (m:Movie) WHERE EXISTS(p.name) RETURN p, r, m limit 20")
+    cypher.create_html_graph('example')
+    cypher.open_graph('example')
+    # print(cypher.get_data_as_table())

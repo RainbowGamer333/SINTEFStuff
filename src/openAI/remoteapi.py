@@ -1,9 +1,12 @@
 import yaml
-import os
 import openai
+import os
 
 def loadCredential():
-    with open("../openai.credential", 'r') as stream:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    credential_filepath = os.path.join(os.path.dirname(current_dir), "openai.credential")
+
+    with open(credential_filepath, 'r') as stream:
         credential_data = yaml.safe_load(stream)
     openai_config = credential_data['openai']
     openai.api_type = "azure"
