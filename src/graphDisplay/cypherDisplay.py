@@ -26,6 +26,7 @@ class CypherDisplay:
                               'Director': {'display': 'name', 'colour': 'blue'}}
         self.filename = None
 
+
     def set_filename(self, fname):
         """
         Set the name of the file to be created.
@@ -36,12 +37,14 @@ class CypherDisplay:
             fname += '.html'
         self.filename = fname
 
+
     def execute_query(self, query):
         """
         Set the data returned from the query.
         :return: None
         """
         self.data = self.graph.run(query).data()
+
 
     def get_data_as_table(self):
         """
@@ -50,6 +53,7 @@ class CypherDisplay:
         """
         assert self.data is not None, 'No data has been set. Execute a query first.'
         return pd.DataFrame(self.data)
+
 
     def get_graph_from_data(self):
         """
@@ -71,7 +75,6 @@ class CypherDisplay:
                 if isinstance(value, py2neo.data.Node):
                     attr = self.__nodeDisplay[list(value.labels)[0]]
                     g.add_node(value[attr['display']], color=attr['colour'])
-                    print(value.labels)
 
                 # if relationship
                 elif isinstance(value, py2neo.data.Relationship):
@@ -92,7 +95,8 @@ class CypherDisplay:
                             g.add_edge(startStr, endStr, label=rel, arrows="to", color="grey")
         return g
 
-    def get_html_graph(self, fname=None):
+
+    def create_html_graph(self, fname=None):
         """
         Display the result of a query as a network graph. You can view the graph as a html file.
         :param fname: the name of the file to be created. Will be automatically appended with '.html' if not already.
@@ -109,7 +113,8 @@ class CypherDisplay:
         nt = Network(notebook=True, directed=True, height="1400px")
         nt.from_nx(g)
         nt.set_edge_smooth('dynamic')
-        nt.show(self.filename)
+        nt.show('../graphs/' + self.filename)
+
 
     def open_graph(self, name=None):
         """
@@ -121,9 +126,11 @@ class CypherDisplay:
         if name is not None:
             self.set_filename(name)
 
-        assert os.path.exists(
-            self.filename), self.filename + ' does not exist. Use get_html_graph(str) to create the file.'
-        webbrowser.open(self.filename)
+        path = '../graphs/' + self.filename
+
+        assert os.path.exists(path), self.filename + ' does not exist. Use get_html_graph(str) to create the file.'
+        webbrowser.open("file://" + path)
+
 
     def add_node_displays(self, label, display, colour):
         """
