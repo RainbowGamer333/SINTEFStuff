@@ -23,7 +23,8 @@ class CypherDisplay:
                               'Genre': {'display': 'name', 'colour': 'orange'},
                               'User': {'display': 'name', 'colour': 'blue'},
                               'Actor': {'display': 'name', 'colour': 'lightgreen'},
-                              'Director': {'display': 'name', 'colour': 'blue'}}
+                              'Director': {'display': 'name', 'colour': 'blue'},
+                              'Other': {'display': '', 'colour': 'grey'}}
         self.filename = None
 
 
@@ -63,37 +64,45 @@ class CypherDisplay:
 
         g = nx.MultiDiGraph()
         for record in self.data:
-            # In case of unusual errors regarding the adding of edges, uncomment the following line.
-            # This will create the nodes before the relationship, which may help.
-
-            values = record.values()
-            # values = sorted(values(), key=lambda x: x.__class__.__name__, reverse=True)
-
-            for value in values:
+            for value in record.values():
 
                 # if node
                 if isinstance(value, py2neo.data.Node):
-                    attr = self.__nodeDisplay[list(value.labels)[0]]
-                    g.add_node(value[attr['display']], color=attr['colour'])
+                    display, colour = self.get_node_display_and_colour(value)
+                    g.add_node(display, color=colour)
+
 
                 # if relationship
                 elif isinstance(value, py2neo.data.Relationship):
                     rel = type(value).__name__
-                    startNode = value.start_node
-                    endNode = value.end_node
+                    startDisplay, _ = self.get_node_display_and_colour(value.start_node)
+                    endDisplay, _ = self.get_node_display_and_colour(value.end_node)
 
-                    startStr = startNode[self.__nodeDisplay[list(startNode.labels)[0]]['display']]
-                    endStr = endNode[self.__nodeDisplay[list(endNode.labels)[0]]['display']]
+                    print(startDisplay, rel, endDisplay)
 
-                    if not g.has_edge(startStr, endStr):
-                        g.add_edge(startStr, endStr, label=rel, arrows="to", color="grey")
+                    if not g.has_edge(startDisplay, endDisplay):
+                        g.add_edge(startDisplay, endDisplay, label=rel, arrows="to", color="grey")
 
                     else:
                         # if relationship doesn't already exist, add it
-                        edge_data = g.get_edge_data(startStr, endStr)
+                        edge_data = g.get_edge_data(startDisplay, endDisplay)
                         if rel not in [edge_data[key]['label'] for key in edge_data.keys()]:
-                            g.add_edge(startStr, endStr, label=rel, arrows="to", color="grey")
+                            g.add_edge(startDisplay, endDisplay, label=rel, arrows="to", color="grey")
         return g
+
+    def get_node_display_and_colour(self, node):
+        """
+        Get the display and colour of a node.
+        If the node has the correct display attribute then that will be used, otherwise the node's identity will be used.
+        """
+
+        attr = self.__nodeDisplay[list(node.labels)[0]]
+
+        display = node[attr['display']] if node[attr['display']] is not None else str(node.identity)
+        colour = attr['colour']
+
+        return display, colour
+
 
 
     def create_html_graph(self, fname=None):
@@ -136,6 +145,14 @@ class CypherDisplay:
         webbrowser.open_new_tab(graph_path)
 
 
+    def set_node_displays(self, nodeDisplays):
+        """
+        Set the nodeDisplay dictionary to the given dictionary.
+        :param nodeDisplays: a dictionary containing the node displays
+        :return: None
+        """
+        self.__nodeDisplay = nodeDisplays
+
     def add_node_displays(self, label, display, colour):
         """
         Add a node display to the nodeDisplay dictionary. Will replace the existing display if the label already exists.
@@ -149,7 +166,7 @@ class CypherDisplay:
 
 if __name__ == '__main__':
     cypher = CypherDisplay('https', 'demo.neo4jlabs.com', 7473, 'recommendations', 'recommendations')
-    cypher.execute_query("MATCH (p:Person) -[r]-> (m:Movie) WHERE EXISTS(p.name) RETURN p, r, m limit 20")
+    cypher.execute_query("match (p:Person) -[r]- (m:Movie) where not exists(p.name) return p, r, m limit 50")
     cypher.create_html_graph('example')
     cypher.open_graph('example')
     # print(cypher.get_data_as_table())
