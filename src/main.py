@@ -7,7 +7,7 @@ from openAI.cypherbot import CypherBot
 if __name__ == "__main__":
     connection = CypherDisplay('https', 'demo.neo4jlabs.com', 7473, 'recommendations', 'recommendations')
 
-    bot = CypherBot("prompt/prompt.txt")
+    bot = CypherBot("prompt.txt")
     while True:
         query = bot.ask_question()
         if query:

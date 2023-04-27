@@ -23,8 +23,7 @@ class CypherDisplay:
                               'Genre': {'display': 'name', 'colour': 'orange'},
                               'User': {'display': 'name', 'colour': 'blue'},
                               'Actor': {'display': 'name', 'colour': 'lightgreen'},
-                              'Director': {'display': 'name', 'colour': 'blue'},
-                              'Other': {'display': '', 'colour': 'grey'}}
+                              'Director': {'display': 'name', 'colour': 'blue'}}
         self.filename = None
 
 
@@ -78,13 +77,11 @@ class CypherDisplay:
                     startDisplay, _ = self.get_node_display_and_colour(value.start_node)
                     endDisplay, _ = self.get_node_display_and_colour(value.end_node)
 
-                    print(startDisplay, rel, endDisplay)
-
                     if not g.has_edge(startDisplay, endDisplay):
                         g.add_edge(startDisplay, endDisplay, label=rel, arrows="to", color="grey")
 
                     else:
-                        # if relationship doesn't already exist, add it
+                        # if specific relationship doesn't already exist, add it
                         edge_data = g.get_edge_data(startDisplay, endDisplay)
                         if rel not in [edge_data[key]['label'] for key in edge_data.keys()]:
                             g.add_edge(startDisplay, endDisplay, label=rel, arrows="to", color="grey")
@@ -112,20 +109,21 @@ class CypherDisplay:
         If None then the function will use the current self.filename
         :return: None
         """
-        assert self.data is not None, 'No data has been set. Execute a query first.'
         assert fname is not None or self.filename is not None, 'No filename has been set'
 
         if fname is not None:
             self.set_filename(fname)
 
         g = self.get_graph_from_data()
-        nt = Network(notebook=True, directed=True, height="1400px")
+
+        nt = Network(notebook=True, directed=True, height="1400px", cdn_resources="remote")
         nt.from_nx(g)
-        nt.set_edge_smooth('dynamic')
+        # nt.set_edge_smooth('dynamic')
 
         current_dir = os.path.dirname(os.path.abspath(__file__))
         graph_path = os.path.join(os.path.dirname(current_dir), 'graphs', self.filename)
 
+        # todo: find a way to remove the prints
         nt.show(graph_path)
 
 
@@ -140,8 +138,8 @@ class CypherDisplay:
 
         current_dir = os.path.dirname(os.path.abspath(__file__))
         graph_path = os.path.join(os.path.dirname(current_dir), 'graphs', self.filename)
-        assert os.path.exists(graph_path), self.filename + ' does not exist'
 
+        assert os.path.exists(graph_path), self.filename + ' does not exist'
         webbrowser.open_new_tab(graph_path)
 
 
@@ -166,7 +164,7 @@ class CypherDisplay:
 
 if __name__ == '__main__':
     cypher = CypherDisplay('https', 'demo.neo4jlabs.com', 7473, 'recommendations', 'recommendations')
-    cypher.execute_query("match (p:Person) -[r]- (m:Movie) where not exists(p.name) return p, r, m limit 50")
+    cypher.execute_query("match (n)-[r]->(m) return n,r,m limit 20")
     cypher.create_html_graph('example')
     cypher.open_graph('example')
     # print(cypher.get_data_as_table())

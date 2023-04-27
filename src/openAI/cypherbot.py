@@ -8,33 +8,36 @@ from datetime import datetime
 # todo: implement the API into the rest of the code
 
 class CypherBot:
-    def __init__(self, promptPath=None):
+    def __init__(self, promptFile=None):
         remoteapi.loadCredential()
 
         self.usage = {"completion_tokens": 0, "prompt_tokens": 0, "total_tokens": 0}
         self.messages = []
-
-        self.set_prompt(promptPath) if promptPath else None
+        self.set_prompt(promptFile) if promptFile else None
 
 
     def add_message(self, role, content):
         self.messages.append({'role': role, 'content': content})
 
 
-    def set_prompt(self, promptPath):
-        with open(promptPath, "r") as prompt:
+    def set_prompt(self, promptFile):
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        prompt_filepath = os.path.join(os.path.dirname(current_dir), "prompt", promptFile)
+        with open(prompt_filepath, "r") as prompt:
             self.add_message('system', prompt.read())
+
 
     def get_ai_response(self):
         return openai.ChatCompletion.create(
             engine="gpt-35",
             messages=self.messages,
             max_tokens=200,
-            top_p=0.95,
+            top_p=0.05,
             frequency_penalty=0,
             presence_penalty=0,
             stop=None
         )
+
 
     def log_conversation(self):
         filename = datetime.now().strftime("%Y%m%d-%H.%M.%S") + '.txt'
@@ -53,6 +56,7 @@ class CypherBot:
     def ask_question(self):
         question = input('Type in your question, or type "QUIT"\n> ')
         if question.lower() == 'quit':
+            self.log_conversation()
             return
 
         self.add_message('user', question)
@@ -63,7 +67,6 @@ class CypherBot:
         for i in self.usage:
             self.usage[i] += response['usage'][i]
 
-        self.log_conversation()
         print(reply['content'])
         return reply['content']
 
