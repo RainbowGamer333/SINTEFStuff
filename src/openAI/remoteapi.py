@@ -1,6 +1,8 @@
-import yaml
-import openai
 import os
+
+import openai
+import yaml
+
 
 def loadCredential():
     current_dir = os.path.dirname(os.path.abspath(__file__))

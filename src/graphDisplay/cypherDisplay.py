@@ -1,8 +1,9 @@
 import os
 import webbrowser
-import py2neo
-import pandas as pd
+
 import networkx as nx
+import pandas as pd
+import py2neo
 from py2neo import Graph
 from pyvis.network import Network
 
@@ -26,7 +27,6 @@ class CypherDisplay:
                               'Director': {'display': 'name', 'colour': 'blue'}}
         self.filename = None
 
-
     def set_filename(self, fname):
         """
         Set the name of the file to be created.
@@ -37,14 +37,12 @@ class CypherDisplay:
             fname += '.html'
         self.filename = fname
 
-
     def execute_query(self, query):
         """
         Set the data returned from the query.
         :return: None
         """
         self.data = self.graph.run(query).data()
-
 
     def get_data_as_table(self):
         """
@@ -53,7 +51,6 @@ class CypherDisplay:
         """
         assert self.data is not None, 'No data has been set. Execute a query first.'
         return pd.DataFrame(self.data)
-
 
     def get_graph_from_data(self):
         """
@@ -100,8 +97,6 @@ class CypherDisplay:
 
         return display, colour
 
-
-
     def create_html_graph(self, fname=None):
         """
         Display the result of a query as a network graph. You can view the graph as a html file.
@@ -123,9 +118,7 @@ class CypherDisplay:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         graph_path = os.path.join(os.path.dirname(current_dir), 'graphs', self.filename)
 
-        # todo: find a way to remove the prints
-        nt.show(graph_path)
-
+        nt.write_html(graph_path)
 
     def open_graph(self, name=None):
         """
@@ -140,8 +133,7 @@ class CypherDisplay:
         graph_path = os.path.join(os.path.dirname(current_dir), 'graphs', self.filename)
 
         assert os.path.exists(graph_path), self.filename + ' does not exist'
-        webbrowser.open_new_tab(graph_path)
-
+        webbrowser.open(graph_path)
 
     def set_node_displays(self, nodeDisplays):
         """
@@ -153,7 +145,7 @@ class CypherDisplay:
 
     def add_node_displays(self, label, display, colour):
         """
-        Add a node display to the nodeDisplay dictionary. Will replace the existing display if the label already exists.
+        Add a node display to the nodeDisplay dictionary. If the label already exists, then it will be replaced.
         :param label: the name of the node
         :param display: the attribute of the node to be displayed
         :param colour: the colour of the node
@@ -164,7 +156,6 @@ class CypherDisplay:
 
 if __name__ == '__main__':
     cypher = CypherDisplay('https', 'demo.neo4jlabs.com', 7473, 'recommendations', 'recommendations')
-    cypher.execute_query("match (n)-[r]->(m) return n,r,m limit 20")
+    cypher.execute_query("match (n)-[r]->(m) return n,r,m limit 10")
     cypher.create_html_graph('example')
     cypher.open_graph('example')
-    # print(cypher.get_data_as_table())

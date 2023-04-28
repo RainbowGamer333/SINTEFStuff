@@ -1,9 +1,6 @@
 from graphDisplay.cypherDisplay import CypherDisplay
 from openAI.cypherbot import CypherBot
 
-
-
-
 if __name__ == "__main__":
     connection = CypherDisplay('https', 'demo.neo4jlabs.com', 7473, 'recommendations', 'recommendations')
 
