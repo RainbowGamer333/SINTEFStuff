@@ -2,9 +2,9 @@ from graphDisplay.cypherDisplay import CypherDisplay
 from openAI.cypherbot import CypherBot
 
 if __name__ == "__main__":
-    connection = CypherDisplay('https', 'demo.neo4jlabs.com', 7473, 'recommendations', 'recommendations')
+    connection = CypherDisplay('https', 'demo.neo4jlabs.com', 7473, auth=('recommendations', 'recommendations'))
 
-    bot = CypherBot("prompt.txt")
+    bot = CypherBot(prompt="prompt.txt", history=False)
     while True:
         query = bot.ask_question()
         if query:

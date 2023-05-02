@@ -7,26 +7,30 @@ from . import remoteapi
 
 
 class CypherBot:
-    def __init__(self, promptFile=None):
+    def __init__(self, prompt=None, history=False):
         remoteapi.loadCredential()
 
         self.usage = {"completion_tokens": 0, "prompt_tokens": 0, "total_tokens": 0}
         self.messages = []
-        self.set_prompt(promptFile) if promptFile else None
+        self.prompt = []
+        self.set_prompt(prompt) if prompt else None
+        self.history = history
 
     def add_message(self, role, content):
         self.messages.append({'role': role, 'content': content})
 
     def set_prompt(self, promptFile):
+
         current_dir = os.path.dirname(os.path.abspath(__file__))
         prompt_filepath = os.path.join(os.path.dirname(current_dir), "prompt", promptFile)
         with open(prompt_filepath, "r") as prompt:
-            self.add_message('system', prompt.read())
+            self.prompt = {'role': 'system', 'content': prompt.read()}
 
-    def get_ai_response(self):
+    def get_ai_response(self, message):
+        assert message is not None, "Message cannot be None"
         return openai.ChatCompletion.create(
             engine="gpt-35",
-            messages=self.messages,
+            messages=[self.prompt, message],
             max_tokens=200,
             top_p=0.05,
             frequency_penalty=0,
@@ -68,7 +72,9 @@ class CypherBot:
         Add the user's message to the messages list, and return the AI's response.
         """
         self.add_message('user', message)
-        response = self.get_ai_response()
+
+        # If history is true, then the AI will use the entire conversation as context.
+        response = self.get_ai_response(message=self.messages if self.history else [self.messages[-1]])
         reply = response['choices'][0]['message']
         self.messages.append(reply)
 
