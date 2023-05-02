@@ -2,6 +2,8 @@ import os
 from datetime import datetime
 
 import openai
+import nltk
+from nltk.corpus import stopwords
 
 from . import remoteapi
 
@@ -12,7 +14,6 @@ class CypherBot:
 
         self.usage = {"completion_tokens": 0, "prompt_tokens": 0, "total_tokens": 0}
         self.messages = []
-        self.prompt = []
         self.set_prompt(prompt) if prompt else None
         self.history = history
 
@@ -20,17 +21,20 @@ class CypherBot:
         self.messages.append({'role': role, 'content': content})
 
     def set_prompt(self, promptFile):
-
         current_dir = os.path.dirname(os.path.abspath(__file__))
         prompt_filepath = os.path.join(os.path.dirname(current_dir), "prompt", promptFile)
         with open(prompt_filepath, "r") as prompt:
-            self.prompt = {'role': 'system', 'content': prompt.read()}
+            # todo: remove stopwords from prompt
+            self.add_message('system', prompt.read())
 
-    def get_ai_response(self, message):
-        assert message is not None, "Message cannot be None"
+    def get_ai_response(self):
+
+        # If self.history is false, the AI will only use the prompt and the current message as context
+        message = self.messages if self.history else [self.messages[0], self.messages[-1]]
+
         return openai.ChatCompletion.create(
             engine="gpt-35",
-            messages=[self.prompt, message],
+            messages=message,
             max_tokens=200,
             top_p=0.05,
             frequency_penalty=0,
@@ -42,7 +46,7 @@ class CypherBot:
         """
         Log the conversation to a file. The file will be named with the current date and time.
         """
-        filename = datetime.now().strftime("%Y%m%d-%H.%M.%S") + '.txt'
+        filename = datetime.now().strftime("%Y_%m_%d-%H.%M.%S") + '.txt'
         current_dir = os.path.dirname(os.path.abspath(__file__))
         log_filepath = os.path.join(os.path.dirname(current_dir), "log", filename)
 
@@ -52,7 +56,7 @@ class CypherBot:
                 f.write(item['content'] + '\n')
             f.write(str(self.usage))
 
-        print("The conversation has concluded. You will find it at : ", filename)
+        print("The conversation has ended. You will find the chat history at : ", filename)
 
     def ask_question(self):
         """
@@ -74,7 +78,8 @@ class CypherBot:
         self.add_message('user', message)
 
         # If history is true, then the AI will use the entire conversation as context.
-        response = self.get_ai_response(message=self.messages if self.history else [self.messages[-1]])
+        # todo: remove stopwords from message
+        response = self.get_ai_response()
         reply = response['choices'][0]['message']
         self.messages.append(reply)
 
@@ -82,6 +87,19 @@ class CypherBot:
             self.usage[i] += response['usage'][i]
 
         return reply['content']
+
+    def remove_stopwords(self, text):
+        """
+        Tokenize the text and return a list of tokens.
+        """
+        text = nltk.word_tokenize(text)
+        newText = []
+
+        stop_words = set(stopwords.words('english'))
+        for word in text:
+            if word.lower() not in stop_words:
+                newText.append(word)
+        return ' '.join(newText)
 
 
 if __name__ == '__main__':
