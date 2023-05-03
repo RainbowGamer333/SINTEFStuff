@@ -1,8 +1,8 @@
 import os
 from datetime import datetime
 
-import openai
 import nltk
+import openai
 from nltk.corpus import stopwords
 
 from . import remoteapi
@@ -23,23 +23,22 @@ class CypherBot:
     def set_prompt(self, promptFile):
         current_dir = os.path.dirname(os.path.abspath(__file__))
         prompt_filepath = os.path.join(os.path.dirname(current_dir), "prompt", promptFile)
-        with open(prompt_filepath, "r") as prompt:
-            # todo: remove stopwords from prompt
-            self.add_message('system', prompt.read())
+        with open(prompt_filepath, "r") as file:
+            prompt = file.read()
+            self.add_message('system', prompt)
 
-    def get_ai_response(self):
+    def get_ai_response(self, m=None):
 
         # If self.history is false, the AI will only use the prompt and the current message as context
-        message = self.messages if self.history else [self.messages[0], self.messages[-1]]
+        message = m if m else self.messages if self.history else [self.messages[0], self.messages[-1]]
 
         return openai.ChatCompletion.create(
             engine="gpt-35",
             messages=message,
             max_tokens=200,
-            top_p=0.05,
-            frequency_penalty=0,
-            presence_penalty=0,
-            stop=None
+            temperature=0.05,
+            frequency_penalty=-1,
+            presence_penalty=-1,
         )
 
     def log_conversation(self):
@@ -78,7 +77,6 @@ class CypherBot:
         self.add_message('user', message)
 
         # If history is true, then the AI will use the entire conversation as context.
-        # todo: remove stopwords from message
         response = self.get_ai_response()
         reply = response['choices'][0]['message']
         self.messages.append(reply)
@@ -103,6 +101,6 @@ class CypherBot:
 
 
 if __name__ == '__main__':
-    bot = CypherBot(__file__ + "\\..\\prompt\\prompt.txt")
+    bot = CypherBot("../prompt/prompt.txt")
     while bot.ask_question():
         pass
