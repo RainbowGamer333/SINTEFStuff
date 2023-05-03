@@ -9,11 +9,11 @@ if __name__ == "__main__":
         query = bot.ask_question()
         if not query: break
 
-        show = input("Would you like to display the graph? (y/n)\n> ")
-        if show == 'y':
-            connection.execute_query(query)
+        show = ''
+        while show not in ['y', 'n']:
+            show = input("Would you like to display the graph? (y/n)\n> ")
+            if show == 'y':
+                connection.execute_query(query)
 
-            connection.create_html_graph('graph.html')
-            connection.open_graph('graph.html')
-        else:
-            break
+                connection.create_html_graph('graph.html')
+                connection.open_graph('graph.html')
