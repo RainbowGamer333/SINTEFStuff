@@ -32,13 +32,14 @@ class CypherBot:
         # If self.history is false, the AI will only use the prompt and the current message as context
         message = m if m else self.messages if self.history else [self.messages[0], self.messages[-1]]
 
+        # TODO: try out the stream parameter
         return openai.ChatCompletion.create(
             engine="gpt-35",
             messages=message,
             max_tokens=200,
             temperature=0.05,
             frequency_penalty=-1,
-            presence_penalty=-1,
+            presence_penalty=-1
         )
 
     def log_conversation(self):
@@ -86,6 +87,14 @@ class CypherBot:
 
         return reply['content']
 
+
+    def start_conversation(self):
+        """
+        Start a conversation with the AI.
+        """
+        while self.ask_question():
+            pass
+
     def remove_stopwords(self, text):
         """
         Tokenize the text and return a list of tokens.
@@ -102,5 +111,4 @@ class CypherBot:
 
 if __name__ == '__main__':
     bot = CypherBot("../prompt/prompt.txt")
-    while bot.ask_question():
-        pass
+    bot.start_conversation()
