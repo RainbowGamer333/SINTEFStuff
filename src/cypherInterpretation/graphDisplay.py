@@ -8,7 +8,7 @@ from py2neo import Graph
 from pyvis.network import Network
 
 
-class CypherDisplay:
+class GraphDisplay:
     """
     A class to handle the execution of cypher queries and to display the results.
     """
@@ -44,13 +44,6 @@ class CypherDisplay:
         """
         self.data = self.graph.run(query).data()
 
-    def get_data_as_table(self):
-        """
-        Display the result of a query as a DataFrame.
-        :return: a DataFrame containing the data returned from the query
-        """
-        assert self.data is not None, 'No data has been set. Execute a query first.'
-        return pd.DataFrame(self.data)
 
     def get_graph_from_data(self):
         """
@@ -155,7 +148,5 @@ class CypherDisplay:
 
 
 if __name__ == '__main__':
-    cypher = CypherDisplay('https', 'demo.neo4jlabs.com', 7473, auth=('recommendations', 'recommendations'))
-    cypher.execute_query("match (n) return n limit 10")
-    cypher.create_html_graph('example')
-    cypher.open_graph('example')
+    cypher = GraphDisplay('https', 'demo.neo4jlabs.com', 7473, auth=('recommendations', 'recommendations'))
+    cypher.execute_query("match (n) -[r]- (m) return n, r, m limit 15")
