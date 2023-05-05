@@ -30,15 +30,32 @@ class ChatBot:
         self.log = log
 
     def add_message(self, role, content):
+        """
+        Add a message to the messages list.
+        :param role: the role of the message. Can be:
+            'system' for giving instructions to the bot,
+            'assistant' for the bot's responses, or
+            'user' for the user's messages
+        :param content: the content of the message
+        """
         self.messages.append(format_message(role, content))
 
     def set_prompt(self, promptFile):
+        """
+        Set the prompt to be used by the AI. This will overwrite the current prompt.
+        :param promptFile: the name of the file containing the prompt to be used. Will search for it in the prompt folder.
+        """
         current_dir = os.path.dirname(os.path.abspath(__file__))
         prompt_filepath = os.path.join(os.path.dirname(current_dir), "prompt", promptFile)
         with open(prompt_filepath, "r") as file:
             self.prompt = format_message('system', file.read())
 
-    def get_ai_response(self):
+    def get_ai_response(self) -> dict:
+        """
+        Get the AI's response to the current conversation.
+        :return: a dictionary containing the AI's response and the usage of the API.
+        To get the content of the response use response['choices'][n]['content'] where n is the index of the response.
+        """
 
         # If self.history is false, the AI will only use the prompt and the current message as context
         if self.history:
@@ -76,22 +93,24 @@ class ChatBot:
         print("The conversation has ended. You will find the chat history at : ", filename)
 
 
-    def reply(self):
+    def reply(self, add_message=False) -> str:
         """
         Add the user's message to the messages list, and return the AI's response.
         """
 
         # If history is true, then the AI will use the entire conversation as context.
         response = self.get_ai_response()
-        reply = response['choices'][0]['message']
+        reply = response['choices'][0]['message']['content']
 
         for i in self.usage:
             self.usage[i] += response['usage'][i]
 
-        return reply['content']
+        self.add_message('assistant', reply) if add_message else None
+
+        return reply
 
 
-def format_message(role, message):
+def format_message(role, message) -> dict:
     """
     Format the message to be used as context for the AI.
     """
