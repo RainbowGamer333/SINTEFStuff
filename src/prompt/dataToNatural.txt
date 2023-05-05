@@ -1,1 +1,1 @@
-I give question Use data answer it
+I give you question and data. Answer question with all elements from data
