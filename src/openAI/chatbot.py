@@ -5,34 +5,48 @@ import nltk
 import openai
 from nltk.corpus import stopwords
 
-from . import remoteapi
+if __name__ != '__main__':
+    from . import remoteapi
+else:
+    import remoteapi
 
 
-class CypherBot:
-    def __init__(self, prompt=None, history=False):
+
+class ChatBot:
+    def __init__(self, prompt, history=False, log=True):
+        """
+        Initialise the chatbot.
+        :param prompt: the name of the file containing the prompt to be used. Will search for it in the prompt folder.
+        :param history: if True then the AI will use the prompt and all previous messages as context. If False then the AI will only use the prompt and the current message as context.
+        :param log: if True then the AI will log the conversation to a file.
+        """
         remoteapi.loadCredential()
 
         self.usage = {"completion_tokens": 0, "prompt_tokens": 0, "total_tokens": 0}
         self.messages = []
-        self.set_prompt(prompt) if prompt else None
+        self.prompt = ''
+        self.set_prompt(prompt)
         self.history = history
+        self.log = log
 
     def add_message(self, role, content):
-        self.messages.append({'role': role, 'content': content})
+        self.messages.append(format_message(role, content))
 
     def set_prompt(self, promptFile):
         current_dir = os.path.dirname(os.path.abspath(__file__))
         prompt_filepath = os.path.join(os.path.dirname(current_dir), "prompt", promptFile)
         with open(prompt_filepath, "r") as file:
-            prompt = file.read()
-            self.add_message('system', prompt)
+            self.prompt = format_message('system', file.read())
 
-    def get_ai_response(self, m=None):
+    def get_ai_response(self):
 
         # If self.history is false, the AI will only use the prompt and the current message as context
-        message = m if m else self.messages if self.history else [self.messages[0], self.messages[-1]]
+        if self.history:
+            message = [self.prompt]
+            message.extend(self.messages)
+        else:
+            message = [self.prompt, self.messages[-1]]
 
-        # TODO: try out the stream parameter
         return openai.ChatCompletion.create(
             engine="gpt-35",
             messages=message,
@@ -46,6 +60,9 @@ class CypherBot:
         """
         Log the conversation to a file. The file will be named with the current date and time.
         """
+        if not self.log:
+            return
+
         filename = datetime.now().strftime("%Y_%m_%d-%H.%M.%S") + '.txt'
         current_dir = os.path.dirname(os.path.abspath(__file__))
         log_filepath = os.path.join(os.path.dirname(current_dir), "log", filename)
@@ -58,29 +75,15 @@ class CypherBot:
 
         print("The conversation has ended. You will find the chat history at : ", filename)
 
-    def ask_question(self):
-        """
-        Asks for the user's question and returns the response from the AI.
-        """
-        question = input('Type in your question, or type "QUIT"\n> ')
-        if question.lower() == 'quit':
-            self.log_conversation()
-            return
 
-        reply = self.reply(question)
-        print(reply + "\n")
-        return reply
-
-    def reply(self, message):
+    def reply(self):
         """
         Add the user's message to the messages list, and return the AI's response.
         """
-        self.add_message('user', message)
 
         # If history is true, then the AI will use the entire conversation as context.
         response = self.get_ai_response()
         reply = response['choices'][0]['message']
-        self.messages.append(reply)
 
         for i in self.usage:
             self.usage[i] += response['usage'][i]
@@ -88,27 +91,8 @@ class CypherBot:
         return reply['content']
 
 
-    def start_conversation(self):
-        """
-        Start a conversation with the AI.
-        """
-        while self.ask_question():
-            pass
-
-    def remove_stopwords(self, text):
-        """
-        Tokenize the text and return a list of tokens.
-        """
-        text = nltk.word_tokenize(text)
-        newText = []
-
-        stop_words = set(stopwords.words('english'))
-        for word in text:
-            if word.lower() not in stop_words:
-                newText.append(word)
-        return ' '.join(newText)
-
-
-if __name__ == '__main__':
-    bot = CypherBot("../prompt/prompt.txt")
-    bot.start_conversation()
+def format_message(role, message):
+    """
+    Format the message to be used as context for the AI.
+    """
+    return {'role': role, 'content': message}
