@@ -2,7 +2,6 @@ import os
 import webbrowser
 
 import networkx as nx
-import pandas as pd
 import py2neo
 from py2neo import Graph
 from pyvis.network import Network
@@ -14,9 +13,6 @@ class GraphDisplay:
     """
 
     def __init__(self, sch, h, p, auth=(None, None), query=None):
-        """
-        Initialise the class.
-        """
         self.graph = Graph(scheme=sch, host=h, port=p, auth=(auth[0], auth[1]))
         self.data = self.execute_query(query) if query is not None else None
         self.__nodeDisplay = {'Person': {'display': 'name', 'colour': 'green'},
@@ -42,7 +38,8 @@ class GraphDisplay:
         Set the data returned from the query.
         :return: None
         """
-        self.data = self.graph.run(query).data()
+        result = self.graph.run(query)
+        self.data = result.data()
 
 
     def get_graph_from_data(self):
@@ -91,11 +88,12 @@ class GraphDisplay:
 
         return display, colour
 
-    def create_html_graph(self, filename=None):
+    def create_graph(self, filename=None, result=False):
         """
         Display the result of a query as a network graph. You can view the graph as a html file.
         :param filename: the name of the file to be created. Will be automatically appended with '.html' if not already.
         If None then the function will use the current self.filename
+        :param result: if True then the function will return the networkx graph
         :return: None
         """
         assert filename is not None or self.filename is not None, 'No filename has been set'
@@ -112,6 +110,9 @@ class GraphDisplay:
         graph_path = os.path.join(os.path.dirname(current_dir), 'graphs', self.filename)
 
         nt.write_html(graph_path)
+
+        if result:
+            return g
 
     def open_graph(self, name=None):
         """
@@ -149,4 +150,7 @@ class GraphDisplay:
 
 if __name__ == '__main__':
     cypher = GraphDisplay('https', 'demo.neo4jlabs.com', 7473, auth=('recommendations', 'recommendations'))
-    cypher.execute_query("match (n) -[r]- (m) return n, r, m limit 15")
+    cypher.execute_query("match (p:Person) return p limit 15")
+    g = cypher.create_graph('graph', result=True)
+    cypher.open_graph()
+    print(g.nodes)
