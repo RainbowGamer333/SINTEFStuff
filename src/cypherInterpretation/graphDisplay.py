@@ -1,7 +1,7 @@
 import os
 import webbrowser
 
-import networkx as nx
+from networkx import MultiDiGraph
 import py2neo
 from py2neo import Graph
 from pyvis.network import Network
@@ -42,14 +42,14 @@ class GraphDisplay:
         self.data = result.data()
 
 
-    def get_graph_from_data(self):
+    def get_graph_from_data(self) -> MultiDiGraph:
         """
         Convert the data returned from a query into a networkx graph.
         :return: networkx MultiDiGraph containing the data returned from the query
         """
 
         assert self.data is not None, 'No data has been set. Execute a query first.'
-        g = nx.MultiDiGraph()
+        g = MultiDiGraph()
         for record in self.data:
             for value in record.values():
 
@@ -75,7 +75,7 @@ class GraphDisplay:
                             g.add_edge(startDisplay, endDisplay, label=rel, arrows="to", color="grey")
         return g
 
-    def get_node_display(self, node):
+    def get_node_display(self, node) -> (str, str):
         """
         Get the display and colour of a node.
         If the node has the correct display attribute then that will be used, otherwise the node's identity will be used.
@@ -88,7 +88,7 @@ class GraphDisplay:
 
         return display, colour
 
-    def create_graph(self, filename=None, result=False):
+    def create_graph(self, filename=None, result=False) -> MultiDiGraph:
         """
         Display the result of a query as a network graph. You can view the graph as a html file.
         :param filename: the name of the file to be created. Will be automatically appended with '.html' if not already.
