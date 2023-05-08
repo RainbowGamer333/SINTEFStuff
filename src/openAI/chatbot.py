@@ -62,8 +62,7 @@ class ChatBot:
 
         # If self.history is false, the AI will only use the prompt and the current message as context
         if self.history:
-            message = [self.prompt]
-            message.extend(self.messages)
+            message = [self.prompt] + self.messages
         else:
             message = [self.prompt, self.messages[-1]]
 
