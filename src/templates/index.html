@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Chatroom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>Web Chatroom</h2>
+        </div>
+        <div class="chat-messages">
+            <ul class="message-list">
+                <li class="message">
+                    <div class="message-info">
+                        <span class="message-sender">Assistant:</span>
+                        <span class="message-time">3:45 PM</span>
+                    </div>
+                    <div class="message-text">Please type in your question</div>
+                </li>
+            </ul>
+        </div>
+        <div class="chat-input">
+            <label>
+                <input type="text" placeholder="Type your message...">
+            </label>
+            <button>Send</button>
+        </div>
+    </div>
+</body>
+</html>
