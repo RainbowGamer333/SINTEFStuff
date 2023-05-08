@@ -13,7 +13,7 @@ else:
 
 
 class ChatBot:
-    def __init__(self, prompt, history=False, log=True):
+    def __init__(self, temperature, max_tokens, presence_penalty, prompt, history=False, log=True):
         """
         Initialise the chatbot.
         :param prompt: the name of the file containing the prompt to be used. Will search for it in the prompt folder.
@@ -21,6 +21,9 @@ class ChatBot:
         :param log: if True then the AI will log the conversation to a file.
         """
         remoteapi.loadCredential()
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+        self.presence_penalty = presence_penalty
 
         self.usage = {"completion_tokens": 0, "prompt_tokens": 0, "total_tokens": 0}
         self.messages = []
@@ -67,10 +70,9 @@ class ChatBot:
         return openai.ChatCompletion.create(
             engine="gpt-35",
             messages=message,
-            max_tokens=200,
-            temperature=0.05,
-            frequency_penalty=-1,
-            presence_penalty=-1
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+            presence_penalty=self.presence_penalty
         )
 
     def log_conversation(self):
@@ -86,8 +88,9 @@ class ChatBot:
 
         with open(log_filepath, 'w') as f:
             for item in self.messages:
-                f.write('[' + item['role'] + ']: ')
-                f.write(item['content'] + '\n')
+                if item['role'] != 'system':
+                    f.write(f"[{item['role']}]: ")
+                    f.write(item['content'] + '\n')
             f.write(str(self.usage))
 
         print("The conversation has ended. You will find the chat history at : ", filename)

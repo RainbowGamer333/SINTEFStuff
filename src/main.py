@@ -3,9 +3,9 @@ from openAI.chatbot import ChatBot
 
 def start_conversation(connection):
     # queryBot is used to get the query from the user's question
-    queryBot = ChatBot(prompt="questionToQuery.txt", history=True, log=False)
+    queryBot = ChatBot(prompt="questionToQuery.txt", temperature=0.6, max_tokens=200, presence_penalty=-1, history=True, log=False)
     # finalBot is used to get the response from the data retrieved from the query
-    finalBot = ChatBot(prompt="dataToNatural.txt", history=True)
+    finalBot = ChatBot(prompt="dataToNatural.txt", temperature=0.05, max_tokens=1000, presence_penalty=-2, history=True)
 
     while True:
         # ask question
@@ -21,10 +21,11 @@ def start_conversation(connection):
         # execute query and return data
         connection.execute_query(query)
         graph = connection.create_graph('graph.html', result=True)
+        queryBot.add_message('system', str(graph.nodes))
 
         # get finalBot reply
-        finalBot.add_message('system', str(graph.nodes))
         finalBot.add_message('user', question)
+        finalBot.add_message('system', str(graph.nodes))
         response = finalBot.reply(add_message=True)
         display_response(response)
 
