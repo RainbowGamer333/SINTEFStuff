@@ -11,21 +11,22 @@
         </div>
         <div class="chat-messages">
             <ul class="message-list">
-                <li class="message">
+            {% for message in messages %}
+                <li class="{{'message-from-'+message['role']}}">
                     <div class="message-info">
-                        <span class="message-sender">Assistant:</span>
-                        <span class="message-time">3:45 PM</span>
+                        <span class="message-sender">{{ message['role'] }}</span>
+                        <span class="message-time">{{ message['time'] }}</span>
                     </div>
-                    <div class="message-text">Please type in your question</div>
+                    <div class="message-text">{{ message['content'] }}</div>
                 </li>
+            {% endfor %}
             </ul>
         </div>
-        <div class="chat-input">
-            <label>
-                <input type="text" placeholder="Type your message...">
-            </label>
-            <button>Send</button>
-        </div>
+        <form class="chat-input" method="post">
+            <label for="user-message"></label>
+            <input type="text" id="user-message" name="user-message" placeholder="Type your message...">
+            <input type="submit" value="Send">
+        </form>
     </div>
 </body>
 </html>
