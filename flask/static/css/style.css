@@ -74,7 +74,7 @@
   justify-content: flex-end;
 }
 
-.chat-input input[type="text"] {
+input[name="user-message"] {
   flex-grow: 2;
   border: solid thin gray;
   border-radius: 12px;
@@ -85,16 +85,27 @@
   cursor: not-allowed;
 }
 
-.chat-input input[type="submit"] {
-  background-color: #4CAF50;
-  color: #fff;
+.chat-input > button {
   border: none;
   border-radius: 12px;
   padding: 10px;
   margin-left: 10px;
   cursor: pointer;
+  color: #fff;
 }
 
-.chat-input input[type="submit"]:hover {
+button[name="send"] {
+  background-color: #4CAF50;
+}
+
+button[name="send"]:hover {
   background-color: #3e8e41;
+}
+
+button[name="clear"] {
+  background-color: red;
+}
+
+button[name="clear"]:hover {
+  background-color: #a94442;
 }

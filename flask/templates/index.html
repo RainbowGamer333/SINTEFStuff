@@ -27,12 +27,13 @@
         </div>
         <form class="chat-input" method="post">
         {% if error %}
-            <input type="text" id="user-message" name="user-message" placeholder="Chat disabled..." disabled>
-            <input type="submit" value="Send" disabled>
+            <input type="text" name="user-message" placeholder="Chat disabled..." disabled>
+            <button type="submit" name="send" disabled>Send</button>
         {% else %}
-            <input type="text" id="user-message" name="user-message" placeholder="Type your message...">
-            <input type="submit" value="Send">
+            <input type="text" name="user-message" placeholder="Type your message...">
+            <button type="submit" name="send">Send</button>
         {% endif %}
+            <button type="button" name="clear" value="Reset">Clear conversation</button>
         </form>
     </div>
 </body>
