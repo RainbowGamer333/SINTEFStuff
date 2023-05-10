@@ -11,24 +11,28 @@
         <div class="chat-messages">
             <ul class="message-list">
             {% for message in messages %}
-                <li class="{{'message-from-'+message['role']}}">
+                <li class={{'message-from-'+message['role']}}>
                     <div class="message-info">
                         <span class="message-role">{{ message['role'] }}</span>
                         <span class="message-time">{{ message['time'] }}</span>
                     </div>
-                    <!--{% if error and message == messages[-1] %}
-                    <div class="message-content" style="color:red;">{{ message['content'] }}</div>
-                    {% else %}-->
-                    <div class="message-content">{{ message['content'] }}</div>
-                    <!--{% endif %}-->
+                    {% if error and message == messages[-1] %}
+                        <div class="message-content" style="color:red;">{{ message['content'] }}</div>
+                    {% else %}
+                        <div class="message-content">{{ message['content'] }}</div>
+                    {% endif %}
                 </li>
             {% endfor %}
             </ul>
         </div>
         <form class="chat-input" method="post">
-            <label for="user-message"></label>
+        {% if error %}
+            <input type="text" id="user-message" name="user-message" placeholder="Chat disabled..." disabled>
+            <input type="submit" value="Send" disabled>
+        {% else %}
             <input type="text" id="user-message" name="user-message" placeholder="Type your message...">
             <input type="submit" value="Send">
+        {% endif %}
         </form>
     </div>
 </body>

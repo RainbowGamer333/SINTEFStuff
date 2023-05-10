@@ -1,4 +1,4 @@
-from openAI.chatbot import *
+from src.openAI.chatbot import *
 
 def start_conversation(connection, graphName='graph.html'):
     # queryBot is used to get the query from the user's question

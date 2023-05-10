@@ -37,14 +37,15 @@
 
 .message-from-user {
   margin-bottom: 10px;
+  margin-right: 10px;
   text-align: right;
 }
 
-.message-from-assistant > .message-text {
+.message-from-assistant > .message-content {
   background-color: #d9d9d9;
 }
 
-.message-from-user > .message-text {
+.message-from-user > .message-content {
   background-color: #4CAF50;
   color: #fff;
 }
@@ -62,10 +63,9 @@
   margin-left: 10px;
 }
 
-.message-text {
-  background-color: #f0f0f0;
-  padding: 5px;
-  border-radius: 5px;
+.message-content {
+  padding: 7px;
+  border-radius: 12px;
   display: inline-block;
 }
 
@@ -76,16 +76,20 @@
 
 .chat-input input[type="text"] {
   flex-grow: 2;
-  border: none;
-  border-radius: 5px;
+  border: solid thin gray;
+  border-radius: 12px;
   padding: 10px;
+}
+
+:disabled {
+  cursor: not-allowed;
 }
 
 .chat-input input[type="submit"] {
   background-color: #4CAF50;
   color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 12px;
   padding: 10px;
   margin-left: 10px;
   cursor: pointer;

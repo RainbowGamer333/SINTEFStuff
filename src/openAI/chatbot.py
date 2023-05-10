@@ -1,15 +1,7 @@
 import os
 from datetime import datetime
-
-import nltk
 import openai
-from nltk.corpus import stopwords
-
-if __name__ != '__main__':
-    from . import remoteapi
-else:
-    import remoteapi
-
+import src.openAI.remoteapi as remoteapi
 
 
 class ChatBot:
