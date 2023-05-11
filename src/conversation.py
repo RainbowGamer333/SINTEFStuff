@@ -68,5 +68,4 @@ def format_all_messages(messages):
     new_messages = []
     for message in messages:
         new_messages.append(format_message(message['role'], message['content']))
-    print(new_messages)
     return new_messages
