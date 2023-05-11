@@ -2,6 +2,7 @@
 <head>
     <title>Web Chatroom</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
 </head>
 <body>
     <div class="chat-container">
@@ -9,7 +10,7 @@
             <h2>Web Chatroom</h2>
         </div>
         <div class="chat-messages">
-            <ul class="message-list">
+            <ul class="message-list" id="message-list">
             {% for message in messages %}
                 <li class={{'message-from-'+message['role']}}>
                     <div class="message-info">
@@ -25,7 +26,7 @@
             {% endfor %}
             </ul>
         </div>
-        <form class="chat-input" method="post">
+        <form class="chat-input" method="post" action="/">
         {% if error %}
             <input type="text" name="user-message" placeholder="Chat disabled..." disabled>
             <button type="submit" name="send" disabled>Send</button>
@@ -33,7 +34,7 @@
             <input type="text" name="user-message" placeholder="Type your message...">
             <button type="submit" name="send">Send</button>
         {% endif %}
-            <button type="button" name="clear" value="Reset">Clear conversation</button>
+            <button type="submit" name="clear">Clear conversation</button>
         </form>
     </div>
 </body>
