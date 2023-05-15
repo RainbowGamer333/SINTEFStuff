@@ -1,7 +1,12 @@
 import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from datetime import datetime
 import openai
-import src.openAI.remoteapi as remoteapi
+from spellchecker import SpellChecker
+
+import openAI.remoteapi as remoteapi
 
 
 class ChatBot:
@@ -108,4 +113,23 @@ def format_message(role, message) -> dict:
     """
     Format the message to be used as context for the AI.
     """
+    print("message : " + message)
+    spellcheckMessage = spellcheck(message)
+    print("spellchecked message : " + spellcheckMessage)
     return {'role': role, 'content': message}
+
+
+def spellcheck(message):
+    spell = SpellChecker()
+    words = spell.unknown(message.split())
+    for word in words:
+        message = message.replace(word, spell.correction(word))
+    return message
+
+
+if __name__ == "__main__":
+    # bot = ChatBot(prompt="questionToQuery.txt", temperature=0.6, max_tokens=200, presence_penalty=-1, history=True, log=False)
+    # bot.add_message('user', 'Who directed Interstellar?')
+    # print(bot.reply())
+    m = "dorected is the name of the director of the movie interstellar"
+    print(spellcheck(m))
