@@ -1,9 +1,11 @@
 import sys
 import os
-import py2neo.errors
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from datetime import datetime
 from flask import Flask, render_template, request
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from py2neo.errors import ClientError
+from openai.error import APIError
 
 from src.cypherInterpretation.graphDisplay import GraphDisplay
 from src.conversation import *
@@ -12,20 +14,16 @@ app = Flask(__name__, template_folder='templates')
 
 @app.route("/", methods=['GET', 'POST'])
 def load_index():
-    print("Loading index...")
     if request.method == 'POST':
-        print("POST request received...")
-        print([f for f in request.form])
         try:
             request.form['clear']
-            print("Clearing conversation...")
             reset_messages()
         except Exception:
             question = request.form['user-message']
             try:
                 reply(question)
                 return render_template('index.html', messages=messages, connection=graphDisplay, error=False)
-            except py2neo.errors.ClientError:
+            except (ClientError, APIError):
                 add_message('assistant', 'An error has occurred. Please try again...')
                 return render_template('index.html', messages=messages, connection=graphDisplay, error=True)
 
