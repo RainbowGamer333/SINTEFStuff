@@ -1,6 +1,13 @@
 from src.openAI.chatbot import *
 
 def start_conversation(connection, graphName='graph.html'):
+    """Starts a conversation with the user. The conversation is generated in the console.
+
+    Args:
+        connection (_type_): _description_
+        graphName (str, optional): _description_. Defaults to 'graph.html'.
+    """
+    
     # queryBot is used to get the query from the user's question
     queryBot = ChatBot(prompt="questionToQuery.txt", temperature=0.6, max_tokens=200, presence_penalty=-1, history=True, log=False)
     # finalBot is used to get the response from the data retrieved from the query
@@ -42,6 +49,7 @@ def start_conversation(connection, graphName='graph.html'):
 def continue_conversation(connection, messages):
 
     new_messages = format_all_messages(messages)
+    print("new messages", new_messages)
     # queryBot is used to get the query from the user's question
     queryBot = ChatBot(prompt="questionToQuery.txt", temperature=0.6, max_tokens=200, presence_penalty=-1, history=True, log=False)
     queryBot.messages = new_messages
@@ -51,6 +59,8 @@ def continue_conversation(connection, messages):
 
     question = new_messages[-1]['content']
     query = queryBot.reply(add_message=True)
+    print("*************\n" + question)
+    print("*************\n" + query + "\n*************")
 
     connection.execute_query(query)
     graph = connection.create_graph('graph.html', result=True)
@@ -68,4 +78,5 @@ def format_all_messages(messages):
     new_messages = []
     for message in messages:
         new_messages.append(format_message(message['role'], message['content']))
+    new_messages[-1]['content'] += " Answer only query no extra text"
     return new_messages
