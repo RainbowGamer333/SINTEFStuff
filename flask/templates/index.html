@@ -12,7 +12,7 @@
         <div class="chat-messages">
             <ul class="message-list" id="message-list">
             {% for message in messages %}
-                <li class={{'message-from-'+message['role']}}>
+                <li class={{'message-from-' + message['role']}}>
                     <div class="message-info">
                         <span class="message-role">{{ message['role'] }}</span>
                         <span class="message-time">{{ message['time'] }}</span>
@@ -28,7 +28,7 @@
         </div>
         <form class="chat-input" method="post" action="/">
         {% if error %}
-            <input type="text" name="user-message" placeholder="Chat disabled..." disabled>
+            <input type="text" name="user-message" placeholder="Please clear conversation..." disabled>
             <button type="submit" name="send" disabled>Send</button>
         {% else %}
             <input type="text" name="user-message" placeholder="Type your message...">
@@ -37,5 +37,8 @@
             <button type="submit" name="clear">Clear conversation</button>
         </form>
     </div>
+    {% if graph_name %}
+        <iframe id="graph" src={{ url_for('static', filename='graphs/' + graph_name) }}></iframe>
+    {% endif %}
 </body>
 </html>

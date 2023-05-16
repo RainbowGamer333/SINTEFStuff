@@ -64,7 +64,7 @@
 }
 
 .message-content {
-  padding: 7px;
+  padding: 7px 12px;
   border-radius: 12px;
   display: inline-block;
 }
@@ -108,4 +108,11 @@ button[name="clear"] {
 
 button[name="clear"]:hover {
   background-color: #a94442;
+}
+
+#graph {
+  margin: 10px auto;
+  display: block;
+  width: 800px;
+  height: 400px;
 }
