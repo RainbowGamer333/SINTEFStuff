@@ -3,7 +3,7 @@ import webbrowser
 
 from networkx import MultiDiGraph
 import py2neo
-from py2neo import Graph
+from py2neo import Graph, data
 from pyvis.network import Network
 
 
@@ -32,6 +32,8 @@ class GraphDisplay:
         if not fname.endswith('.html'):
             fname += '.html'
         self.filename = fname
+        
+        assert self.filename is not None
 
     def execute_query(self, query):
         """
@@ -54,28 +56,24 @@ class GraphDisplay:
             for value in record.values():
 
                 # if node
-                if isinstance(value, py2neo.data.Node):
+                if isinstance(value, data.Node):
                     display, colour = self.get_node_display(value)
-                    g.add_node(display, color=colour)
+                    g.add_node(display, color=colour, font={'size': 20})
 
 
                 # if relationship
-                elif isinstance(value, py2neo.data.Relationship):
+                elif isinstance(value, data.Relationship):
                     rel = type(value).__name__
                     startDisplay, _ = self.get_node_display(value.start_node)
                     endDisplay, _ = self.get_node_display(value.end_node)
-
-                    if not g.has_edge(startDisplay, endDisplay):
+                    
+                    edge_data = g.get_edge_data(startDisplay, endDisplay)
+                    # if nodes are not connected or specific relationship type doesn't already exist
+                    if not g.has_edge(startDisplay, endDisplay) or rel not in [edge_data[key]['label'] for key in edge_data.keys()]:
                         g.add_edge(startDisplay, endDisplay, label=rel, arrows="to", color="grey")
-
-                    else:
-                        # if specific relationship doesn't already exist, add it
-                        edge_data = g.get_edge_data(startDisplay, endDisplay)
-                        if rel not in [edge_data[key]['label'] for key in edge_data.keys()]:
-                            g.add_edge(startDisplay, endDisplay, label=rel, arrows="to", color="grey")
         return g
 
-    def get_node_display(self, node) -> (str, str):
+    def get_node_display(self, node):
         """
         Get the display and colour of a node.
         If the node has the correct display attribute then that will be used, otherwise the node's identity will be used.
@@ -88,7 +86,7 @@ class GraphDisplay:
 
         return display, colour
 
-    def create_graph(self, filename=None, result=False) -> MultiDiGraph:
+    def create_graph(self, filename=None, result=False):
         """
         Display the result of a query as a network graph. You can view the graph as a html file.
         :param filename: the name of the file to be created. Will be automatically appended with '.html' if not already.
@@ -96,20 +94,25 @@ class GraphDisplay:
         :param result: if True then the function will return the networkx graph
         :return: None
         """
-        assert filename is not None or self.filename is not None, 'No filename has been set'
 
         if filename is not None:
             self.set_filename(filename)
+            
+        assert self.filename is not None, 'No filename has been set'
 
         g = self.get_graph_from_data()
 
-        nt = Network(notebook=True, directed=True, height="1400px", cdn_resources="remote")
-        nt.from_nx(g)
+        nt = Network(notebook=True, directed=True, height="500px", cdn_resources="remote")
+        nt.from_nx(g, default_node_size=30)
+        
+        # center the graph
+        nt.barnes_hut()
 
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        graph_path = os.path.join(os.path.dirname(current_dir), 'graphs', self.filename)
+        graph_path = os.path.dirname(current_dir.encode())
+        graph_path = os.path.join(os.path.dirname(graph_path), b'flask', b'static', b'graphs', self.filename.encode())
 
-        nt.write_html(graph_path)
+        nt.write_html(graph_path.decode())
 
         if result:
             return g
@@ -119,15 +122,17 @@ class GraphDisplay:
         Open a file and return its content.
         :return: the content of the file
         """
-        assert name is not None or self.filename is not None, 'No filename has been set'
         if name is not None:
             self.set_filename(name)
+            
+        assert self.filename is not None, 'No filename has been set'
 
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        graph_path = os.path.join(os.path.dirname(current_dir), 'graphs', self.filename)
+        graph_path = os.path.dirname(current_dir.encode())
+        graph_path = os.path.join(os.path.dirname(graph_path), b'flask', b'static', b'graphs', self.filename.encode())
 
         assert os.path.exists(graph_path), self.filename + ' does not exist'
-        webbrowser.open(graph_path)
+        webbrowser.open(graph_path.decode())
 
     def set_node_displays(self, nodeDisplays):
         """
@@ -153,4 +158,3 @@ if __name__ == '__main__':
     cypher.execute_query("match (p:Person) return p limit 15")
     g = cypher.create_graph('graph', result=True)
     cypher.open_graph()
-    print(g.nodes)
