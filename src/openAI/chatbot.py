@@ -69,7 +69,7 @@ class ChatBot:
             temperature=self.temperature,
             max_tokens=self.max_tokens,
             presence_penalty=self.presence_penalty
-        )
+        ) # type: ignore
 
     def log_conversation(self):
         """
@@ -109,21 +109,25 @@ class ChatBot:
         return reply
 
 
-def format_message(role, message) -> dict:
+def format_message(role, message):
     """
     Format the message to be used as context for the AI.
     """
-    print("message : " + message)
-    spellcheckMessage = spellcheck(message)
-    print("spellchecked message : " + spellcheckMessage)
+    # TODO: add spellcheck
+    # message = spellcheck(message)
     return {'role': role, 'content': message}
 
 
 def spellcheck(message):
+    print("message to be spellchecked : " + message)
     spell = SpellChecker()
+    ignored_words = ['Neo4j']
     words = spell.unknown(message.split())
     for word in words:
-        message = message.replace(word, spell.correction(word))
+        if word not in ignored_words:
+            correction = spell.correction(word)
+            if correction is not None:
+                message = message.replace(word, correction)
     return message
 
 
