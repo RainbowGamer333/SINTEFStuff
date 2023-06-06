@@ -47,7 +47,7 @@ class ChatBot:
         :param promptFile: the name of the file containing the prompt to be used. Will search for it in the prompt folder.
         """
         current_dir = path.dirname(path.abspath(__file__))
-        prompt_filepath = path.join(path.dirname(current_dir), "prompt", promptFile)
+        prompt_filepath = path.join(path.dirname(current_dir), "prompts", promptFile)
         with open(prompt_filepath, "r") as file:
             self.prompt = format_message('system', file.read())
 
@@ -118,7 +118,7 @@ def format_message(role, message):
     """
     Format the message to be used as context for the AI.
     """
-    return {'role': "assistant", 'content': "Welcome to the Neo4j Chatbot!"}
+    return {'role': role, 'content': message}
 
 
 if __name__ == "__main__":
