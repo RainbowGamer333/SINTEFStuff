@@ -1,6 +1,6 @@
-import os
+import os.path as path
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(path.abspath(path.join(path.dirname(__file__), '..')))
 
 from datetime import datetime
 import openai
@@ -17,7 +17,7 @@ class ChatBot:
         :param history: if True then the AI will use the prompt and all previous messages as context. If False then the AI will only use the prompt and the current message as context.
         :param log: if True then the AI will log the conversation to a file.
         """
-        remoteapi.loadCredential()
+        remoteapi.load_credential()
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.presence_penalty = presence_penalty
@@ -40,15 +40,17 @@ class ChatBot:
         """
         self.messages.append(format_message(role, content))
 
+
     def set_prompt(self, promptFile):
         """
         Set the prompt to be used by the AI. This will overwrite the current prompt.
         :param promptFile: the name of the file containing the prompt to be used. Will search for it in the prompt folder.
         """
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        prompt_filepath = os.path.join(os.path.dirname(current_dir), "prompt", promptFile)
+        current_dir = path.dirname(path.abspath(__file__))
+        prompt_filepath = path.join(path.dirname(current_dir), "prompt", promptFile)
         with open(prompt_filepath, "r") as file:
             self.prompt = format_message('system', file.read())
+
 
     def get_ai_response(self) -> dict:
         """
@@ -62,36 +64,16 @@ class ChatBot:
             message = [self.prompt] + self.messages
         else:
             message = [self.prompt, self.messages[-1]]
-
+            
         return openai.ChatCompletion.create(
             engine="gpt-35",
             messages=message,
             temperature=self.temperature,
             max_tokens=self.max_tokens,
             presence_penalty=self.presence_penalty
-        ) # type: ignore
-
-    def log_conversation(self):
-        """
-        Log the conversation to a file. The file will be named with the current date and time.
-        """
-        if not self.log:
-            return
-
-        filename = datetime.now().strftime("%Y_%m_%d-%H.%M.%S") + '.txt'
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        log_filepath = os.path.join(os.path.dirname(current_dir), "log", filename)
-
-        with open(log_filepath, 'w') as f:
-            for item in self.messages:
-                if item['role'] != 'system':
-                    f.write(f"[{item['role']}]: ")
-                    f.write(item['content'] + '\n')
-            f.write(str(self.usage))
-
-        print("The conversation has ended. You will find the chat history at : ", filename)
-
-
+        )  # type: ignore
+        
+        
     def reply(self, add_message=False) -> str:
         """
         Add the user's message to the messages list, and return the AI's response.
@@ -103,37 +85,43 @@ class ChatBot:
 
         for i in self.usage:
             self.usage[i] += response['usage'][i]
-
         self.add_message('assistant', reply) if add_message else None
-
+        
         return reply
+        
+
+    def log_conversation(self):
+        """
+        Log the conversation to a file. The file will be named with the current date and time.
+        """
+        if not self.log:
+            return
+
+        filename = datetime.now().strftime("%Y_%m_%d-%H.%M.%S") + '.txt'
+        current_dir = path.dirname(path.abspath(__file__))
+        log_filepath = path.join(path.dirname(current_dir), "log", filename)
+
+        with open(log_filepath, 'w') as f:
+            for item in self.messages:
+                if item['role'] != 'system':
+                    f.write(f"[{item['role']}]: ")
+                    f.write(item['content'] + '\n')
+            f.write(str(self.usage))
+
+        print("The conversation has ended. You will find the chat history at : ", filename)
+
+
+    
 
 
 def format_message(role, message):
     """
     Format the message to be used as context for the AI.
     """
-    # TODO: add spellcheck
-    # message = spellcheck(message)
-    return {'role': role, 'content': message}
-
-
-def spellcheck(message):
-    print("message to be spellchecked : " + message)
-    spell = SpellChecker()
-    ignored_words = ['Neo4j']
-    words = spell.unknown(message.split())
-    for word in words:
-        if word not in ignored_words:
-            correction = spell.correction(word)
-            if correction is not None:
-                message = message.replace(word, correction)
-    return message
+    return {'role': "assistant", 'content': "Welcome to the Neo4j Chatbot!"}
 
 
 if __name__ == "__main__":
-    # bot = ChatBot(prompt="questionToQuery.txt", temperature=0.6, max_tokens=200, presence_penalty=-1, history=True, log=False)
-    # bot.add_message('user', 'Who directed Interstellar?')
-    # print(bot.reply())
-    m = "dorected is the name of the director of the movie interstellar"
-    print(spellcheck(m))
+    bot = ChatBot(prompt="questionToQuery.txt", temperature=0.6, max_tokens=200, presence_penalty=-1, history=True, log=False)
+    bot.add_message('user', 'Who directed Interstellar?')
+    print(bot.reply())

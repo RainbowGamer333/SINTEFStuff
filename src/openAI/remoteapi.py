@@ -4,7 +4,8 @@ import openai
 import yaml
 
 
-def loadCredential():
+def load_credential():
+    # change credential filepath to match your own
     current_dir = os.path.dirname(os.path.abspath(__file__))
     credential_filepath = os.path.join(os.path.dirname(current_dir), "openai.credential")
 

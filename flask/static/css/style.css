@@ -113,6 +113,6 @@ button[name="clear"]:hover {
 #graph {
   margin: 10px auto;
   display: block;
-  width: 800px;
-  height: 400px;
+  width: 900px;
+  height: 500px;
 }

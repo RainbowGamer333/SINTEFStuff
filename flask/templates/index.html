@@ -28,7 +28,7 @@
         </div>
         <form class="chat-input" method="post" action="/">
         {% if error %}
-            <input type="text" name="user-message" placeholder="Please clear conversation..." disabled>
+            <input type="text" name="user-message" placeholder="Please clear conversation and try again..." disabled>
             <button type="submit" name="send" disabled>Send</button>
         {% else %}
             <input type="text" name="user-message" placeholder="Type your message...">
@@ -37,6 +37,7 @@
             <button type="submit" name="clear">Clear conversation</button>
         </form>
     </div>
+
     {% if graph_name %}
         <iframe id="graph" src={{ url_for('static', filename='graphs/' + graph_name) }}></iframe>
     {% endif %}

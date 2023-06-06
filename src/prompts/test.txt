@@ -1,0 +1,2 @@
+[assistant]: Welcome to the Neo4j Chatbot!
+[user]: give me every actor
