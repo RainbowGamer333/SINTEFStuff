@@ -1,4 +1,4 @@
-import os.path as path
+import os
 import webbrowser
 
 from networkx import MultiDiGraph
@@ -88,6 +88,7 @@ class GraphDisplay:
             self.set_filename(filename)
             
         assert self.filename is not None, 'No filename has been set'
+        print(self.filename)
 
         g = self.get_graph_from_data()
 
@@ -97,9 +98,9 @@ class GraphDisplay:
         # center the graph
         nt.barnes_hut(central_gravity=0.7)
 
-        current_dir = path.dirname(path.abspath(__file__))
-        graph_path = path.dirname(current_dir.encode())
-        graph_path = path.join(path.dirname(graph_path), b'flask', b'static', b'graphs', self.filename.encode())
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        graph_path = os.path.dirname(current_dir.encode())
+        graph_path = os.path.join(graph_path, b'flask', b'static', b'graphs', self.filename.encode())
 
         nt.write_html(graph_path.decode())
 
@@ -117,11 +118,11 @@ class GraphDisplay:
             
         assert self.filename is not None, 'No filename has been set'
 
-        current_dir = path.dirname(path.abspath(__file__))
-        graph_path = path.dirname(current_dir.encode())
-        graph_path = path.join(path.dirname(graph_path), b'flask', b'static', b'graphs', self.filename.encode())
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        graph_path = os.path.dirname(current_dir.encode())
+        graph_path = os.path.join(graph_path, b'flask', b'static', b'graphs', self.filename.encode())
 
-        assert path.exists(graph_path), self.filename + ' does not exist'
+        assert os.path.exists(graph_path), self.filename + ' does not exist'
         webbrowser.open(graph_path.decode())
         
         
