@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<head>
+    <title>Web Chatroom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>Web Chatroom</h2>
+        </div>
+        <div class="chat-messages">
+            <ul class="message-list" id="message-list">
+            {% for message in messages %}
+                <li class={{'message-from-' + message['role']}}>
+                    <div class="message-info">
+                        <span class="message-role">{{ message['role'] }}</span>
+                        <span class="message-time">{{ message['time'] }}</span>
+                    </div>
+                    {% if error and message == messages[-1] %}
+                        <div class="message-content" style="color:red;">{{ message['content'] }}</div>
+                    {% else %}
+                        <div class="message-content">{{ message['content'] }}</div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+        <form class="chat-input" method="post" action="/">
+        {% if error %}
+            <input type="text" name="user-message" placeholder="Please clear conversation and try again..." disabled>
+            <button type="submit" name="send" disabled>Send</button>
+        {% else %}
+            <input type="text" name="user-message" placeholder="Type your message...">
+            <button type="submit" name="send">Send</button>
+        {% endif %}
+            <button type="submit" name="clear">Clear conversation</button>
+        </form>
+    </div>
+
+    {% if graph_name %}
+        <iframe id="graph" src={{ url_for('static', filename='graphs/' + graph_name) }}></iframe>
+    {% endif %}
+</body>
+</html>
