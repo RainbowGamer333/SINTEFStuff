@@ -49,7 +49,6 @@ def start_conversation(graphName='graph.html'):
 
 def continue_conversation(connection, messages, graph_name='graph.html'):
     
-    
     new_messages = format_all_messages(messages)
     # queryBot is used to get the query from the user's question
     queryBot = ChatBot(prompt="questionToQuery.txt", temperature=0.6, max_tokens=200, presence_penalty=-1, history=True, log=False)
@@ -97,5 +96,7 @@ def conversationOnlyQuery():
         
 
 if __name__ == "__main__":
-    # start_conversation()
-   conversationOnlyQuery()
+    connection = GraphDisplay('https', 'demo.neo4jlabs.com', 7473, auth=('recommendations', 'recommendations'))
+    messages = [{'role': "assistant", 'content': "Welcome to the Neo4j Chatbot!"}, {'role': "user", 'content': "Who directed the movie Interstellar"}]
+    response = continue_conversation(connection, messages)
+    print(response)

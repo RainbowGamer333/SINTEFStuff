@@ -27,11 +27,14 @@ def run_app():
             try:
                 reply(question)
                 error = False
-            except (ConnectionUnavailable):
+            except ConnectionUnavailable:
                 add_message('assistant', "Connection unavailable. Please try again later.")
             # if user input cannot be interpreted, display error message
             except (ClientError, APIError):
                 add_message('assistant', 'An error has occurred. Please clear conversation and try again')
+            except Exception as e:
+                add_message('assistant', e)
+                
             
             finally:
                 return render_template('index.html', messages=messages, graph_name="graph.html", error=error)

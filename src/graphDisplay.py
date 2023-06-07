@@ -88,7 +88,6 @@ class GraphDisplay:
             self.set_filename(filename)
             
         assert self.filename is not None, 'No filename has been set'
-        print(self.filename)
 
         g = self.get_graph_from_data()
 
