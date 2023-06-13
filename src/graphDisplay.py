@@ -8,7 +8,8 @@ from pyvis.network import Network
 
 class GraphDisplay:
     """
-    A class to handle the execution of cypher queries and to display the results.
+    A class to handle the execution of cypher queries and to display the results. 
+    Modify the nodeDisplay dictionary to adapt to your database.
     """
 
     def __init__(self, sch, h, p, auth=(None, None), query=None):
@@ -86,23 +87,17 @@ class GraphDisplay:
 
         if filename is not None:
             self.set_filename(filename)
-            
         assert self.filename is not None, 'No filename has been set'
 
         g = self.get_graph_from_data()
 
         nt = Network(notebook=True, directed=True, height="500px", cdn_resources="remote")
         nt.from_nx(g, default_node_size=30)
-        
-        # center the graph
         nt.barnes_hut(central_gravity=0.7)
 
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        graph_path = os.path.dirname(current_dir.encode())
-        graph_path = os.path.join(graph_path, b'flask', b'static', b'graphs', self.filename.encode())
-
+        graph_path = get_graph_filepath(self.filename)
         nt.write_html(graph_path.decode())
-
+        
         if result:
             return g
 
@@ -114,13 +109,9 @@ class GraphDisplay:
         """
         if name is not None:
             self.set_filename(name)
-            
         assert self.filename is not None, 'No filename has been set'
 
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        graph_path = os.path.dirname(current_dir.encode())
-        graph_path = os.path.join(graph_path, b'flask', b'static', b'graphs', self.filename.encode())
-
+        graph_path = get_graph_filepath(self.filename)
         assert os.path.exists(graph_path), self.filename + ' does not exist'
         webbrowser.open(graph_path.decode())
         
@@ -157,6 +148,11 @@ class GraphDisplay:
         :return: None
         """
         self.__nodeDisplay[label] = {'display': display, 'colour': colour}
+
+def get_graph_filepath(filename):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    graph_path = os.path.dirname(current_dir.encode())
+    return os.path.join(graph_path, b'flask', b'static', b'graphs', filename.encode())
 
 
 if __name__ == '__main__':
